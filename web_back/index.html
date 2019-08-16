@@ -105,4 +105,26 @@
     </script>
 
 </body>
+
+<script>
+$(function(){
+    //用户退出
+    //1.给退出按钮注册点击事件
+    $('.icon-tuichu').parent().on('click',function(e){
+        e.preventDefault();
+        if(confirm('你确定要退出登录吗?')){
+            //2.发送Ajax请求
+            $.ajax({
+                type:'post',
+                url:'http://localhost:8080/admin/user/logout',
+                success:function(backData){
+                    if(backData.code==200){
+                        window.location.href='./login.html';
+                    }
+                }
+            })
+        }
+    })
+})
+</script>
 </html>
