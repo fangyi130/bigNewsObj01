@@ -145,7 +145,7 @@
             <td>{{v.slug}}</td>
             <td class="text-center">
                 <a href="javascript:editTr({&quot;id&quot;:&quot;3&quot;,&quot;slug&quot;:&quot;living&quot;,&quot;name&quot;:&quot;会生活&quot;});" class="btn btn-info btn-xs">编辑</a>
-                <a href="javascript:deleteTr( 3 );" data-id='{{v.id}}' class="btn btn-danger btn-xs">删除</a>
+                <a href="#;" data-id='{{v.id}}' class="btn btn-danger btn-xs btn_delete">删除</a>
             </td>
         </tr>
     {{/each}}
@@ -156,9 +156,9 @@
 <script>
     $(function () {
         //进入页面 发送 Ajax请求
-        //获取文章类别
+        //把获取文章类别 封装成函数渲染到页面 下面直接调用即可
         function getData() {
-            $.ajax({  //封装成函数直接调用
+            $.ajax({
                 type: 'get',
                 url: 'http://localhost:8080/admin/category/list',
                 success: function (backData) {
@@ -198,11 +198,44 @@
                         //从新渲染数据
                         getData();
 
+                        //清空新增弹出框里的默认内容
+                        var tateName = $('#recipient-name').val('');
+                        var tateSlug = $('#recipient-slug').val('');
+
                     }
                 },
             })
             //隐藏模态框
             $('#addModal').modal('hide')
+        })
+
+        //需求:删除文章类别
+        //1.给删除按钮 注册一个点击事件,文章是动态生成的 (委托注册)
+        $('tbody').on('click', 'a.btn_delete', function () {
+            //2.询问是否真的需要删除
+            if (confirm('你确定要删除吗?')) {
+                //3.获取当前删除按钮的id data-id(自定义的储存的id)
+                var cateId = $(this).attr('data-id');
+                console.log(cateId);
+                //4.发送Ajax请求
+                $.ajax({
+                    type: 'post',
+                    url: 'http://localhost:8080/admin/category/delete',
+                    data:{
+                        id:cateId,
+                    },
+                    success: function (backData) {
+                        if (backData.code == 204) {
+                            //5.重新渲染页面  
+                            getData();  
+
+                        }
+                    }
+                })
+
+
+            };
+
         })
 
     })
