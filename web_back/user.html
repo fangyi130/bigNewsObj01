@@ -24,19 +24,20 @@
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">用户名称：</label>
                     <div class="col-sm-4">
-                        <input type="text" name="username" class="form-control" id="inputEmail3" value="李思思">
+                        <input type="text" name="username" class="form-control username" id="inputEmail3" value="李思思">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">昵称：</label>
                     <div class="col-sm-4">
-                        <input type="text" name="nickname" class="form-control" id="inputEmail3" value="思思">
+                        <input type="text" name="nickname" class="form-control nickname" id="inputEmail3" value="思思">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">邮箱：</label>
                     <div class="col-sm-4">
-                        <input type="text" name="email" class="form-control" id="inputEmail3" value="lisisi@126.com">
+                        <input type="text" name="email" class="form-control email" id="inputEmail3"
+                            value="lisisi@126.com">
                     </div>
                 </div>
 
@@ -44,14 +45,15 @@
                     <label for="inputPassword3" class="col-sm-2 control-label">用户图标：</label>
                     <div class="col-sm-10">
                         <img src="images/2.jpg" alt="" class="user_pic">
-                        <input type="file" name="userPic" id="exampleInputFile">
+                        <input name="userPic" type="file" id="exampleInputFile">
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">密码：</label>
                     <div class="col-sm-4">
-                        <input type="password" name="password" class="form-control" id="inputEmail3" value="12345678">
+                        <input type="password" name="password" class="form-control password" id="inputEmail3"
+                            value="12345678">
                     </div>
                 </div>
 
@@ -67,14 +69,64 @@
 
 </body>
 <script>
-    //头像预览
-    //给选择事件按钮注册一个 onchange 值改变事件
-    $('#exampleInputFile').on('change', function () {
-        var icon = this.files[0];
-        //使用URL.createObjectURL 创建一个url
-        var url = URL.createObjectURL(icon);
-        //把url 交给 img的src属性
-        $('.user_pic').attr('src', url);
+    $(function () {
+        //头像预览
+        //给选择事件按钮注册一个 onchange 值改变事件
+        $('#exampleInputFile').on('change', function () {
+            var icon = this.files[0];
+            //使用URL.createObjectURL 创建一个url
+            var url = URL.createObjectURL(icon);
+            //把url 交给 img的src属性
+            $('.user_pic').attr('src', url);
+        })
+
+        //进入页面获取用户详情
+        //并显示在对应的标签中
+        $.ajax({
+            type: 'get',
+            url: 'http://localhost:8080/admin/user/detail',
+            success: function (backData) {
+                if (backData.code == 200) {
+                    $('input.username').val(backData.data.username);
+                    $('input.nickname').val(backData.data.nickname);
+                    $('input.email').val(backData.data.email);
+                    $('input.password').val(backData.data.password);
+
+                    $('.user_pic').attr('src', backData.data.userPic);
+                }
+            }
+        })
+
+        //编辑用户信息
+        //给修改按钮注册点击事件
+        $('#btn_edi').on('click', function (e) {
+            //阻止默认跳转行为
+            e.preventDefault();
+
+            //创建formData 对象
+            var fd = new FormData($('form')[0]);
+            //需要form 表单的 dom 元素
+            //form获取值的标签都要设置name属性,name属性值要和接口保持一致
+
+            //发送Ajax请求,完成修改
+            $.ajax({
+                type: 'post',
+                url: 'http://localhost:8080/admin/user/edit',
+                data: fd,
+                //不要设置请求头
+                contentType: false,
+                processData: false,
+                success: function (backData) {
+                    console.log(backData);
+                    if (backData.code == 200) {
+                        console.log(parent);
+                        //修改完成,刷新父页面 显示新的用户信息
+                        parent.window.location.reload();
+                    }
+                }
+            })
+        })
+
     })
 
 

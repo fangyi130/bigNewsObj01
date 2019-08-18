@@ -145,11 +145,13 @@
             type: 'get',
             success: function (backData) {
                 if (backData.code == 200) {
-                    $('.user_info>img').attr('src', backData.userPic);
-                    $('.user_info>span').html('欢迎&nbsp;&nbsp;' + backData.nickname)
+                    $('.user_info>img').attr('src', backData.data.userPic);
+                    $('.user_info>span').html('欢迎&nbsp;&nbsp;'+backData.data.nickname);
+                    $('.user_center_link>img').attr('src',backData.data.userPic);
                 }
             }
         })
+
         //用户退出
         //1.给退出按钮注册点击事件
         $('.icon-tuichu').parent().on('click', function (e) {
