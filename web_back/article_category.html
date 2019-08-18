@@ -96,7 +96,7 @@
                         </div>
                         <div class="form-group">
                             <label for="message-text" class="control-label">分类别名:</label>
-                            <input type="text" class="form-control" id="recipient-name">
+                            <input type="text" class="form-control" id="recipient-slug">
                         </div>
                     </form>
                 </div>
@@ -115,7 +115,7 @@
         });
 
         $('#model_shutoff').click(function () {
-            alert('shutoff');
+            // alert('shutoff');
             $('#addModal').modal('hide');
         });
 
@@ -154,22 +154,58 @@
 
 
 <script>
-    //进入页面 发送 Ajax请求
-    //获取文章类别
-    $.ajax({
-        type: 'get',
-        url: 'http://localhost:8080/admin/category/list',
-        success: function (backData) {
-            console.log(backData);
-            if (backData.code == 200) {
-                //通过模板引擎渲染到页面
-                var resHtml = template('tate_list', backData);
-                $('tbody').html(resHtml);
+    $(function () {
+        //进入页面 发送 Ajax请求
+        //获取文章类别
+        function getData() {
+            $.ajax({  //封装成函数直接调用
+                type: 'get',
+                url: 'http://localhost:8080/admin/category/list',
+                success: function (backData) {
+                    console.log(backData);
+                    if (backData.code == 200) {
+                        //通过模板引擎渲染到页面
+                        var resHtml = template('tate_list', backData);
+                        $('tbody').html(resHtml);
 
-            }
+                    }
+                }
+            })
         }
-    })
+        //已进入页面即获取文章类别
+        getData();
 
+
+        //给模态框的新增按钮设置点击事件,完成新增
+        $('#model_add').on('click', function () {
+            var tateName = $('#recipient-name').val().trim();
+            var tateSlug = $('#recipient-slug').val().trim();
+            //判断用户输入是否为空
+            if (tateName == '' || tateSlug == '') {
+                alert('请输入分类别名和分类名称');
+                return;
+            }
+            //发送Ajax请求
+            $.ajax({
+                type: 'post',
+                url: "http://localhost:8080/admin/category/add",
+                data: {
+                    name: tateName,
+                    slug: tateSlug,
+                },
+                success: function (backData) {
+                    if (backData.code == 201) {
+                        //从新渲染数据
+                        getData();
+
+                    }
+                },
+            })
+            //隐藏模态框
+            $('#addModal').modal('hide')
+        })
+
+    })
 </script>
 
 </html>
