@@ -33,9 +33,9 @@
                             <option>爱旅行</option>
                         </select>
                         <select id="selStatus" name="" class="form-control input-sm">
-                            <option>所有状态</option>
-                            <option value="drafted">草稿</option>
-                            <option value="published">已发布</option>
+                            <option value="">所有状态</option>
+                            <option value="草稿">草稿</option>
+                            <option value="已发布">已发布</option>
                         </select>
                         <button id="btnSearch" class="btn btn-default btn-sm">筛选</button>
                     </form>
@@ -280,12 +280,37 @@
 
 </body>
 
-<!-- 准备一个模板 -->
+<!-- 准备一个文章  分类模板 -->
 <script id="tada_list" type="text/html">
     <option value=''>所有分类</option>
     {{each data v}}
             <option value='{{v.id}}'>{{v.name}}</option>
    {{/each}}
+</script>
+
+<!-- 准备一个文章 筛选模板 -->
+<script id="data_search" type="text/html">
+{{each data.data v}}
+
+<tr>
+
+        <td>{{v.title}}</td>
+        <td>{{v.author}}</td>
+        <td>{{v.categoryId}}</td>
+        <td class="text-center">{{v.date}}</td>
+
+
+        <td class="text-center">{{v.state}}</td>
+
+
+        <td class="text-center">
+            <a href="article_edit.html" class="btn btn-default btn-xs">编辑</a>
+            <a href="javascript:deleteTr( 1005 );" data-id='{{v.id}}' class="btn btn-danger btn-xs">删除</a>
+        </td>
+    </tr>
+
+{{/each}}
+
 </script>
 
 <script>
@@ -298,7 +323,7 @@
             success: function (backData) {
                 console.log(backData)
                 if (backData.code == 200) {
-                   
+
                     //通过模板引擎渲染到页面
                     var resHtml = template('tada_list', backData);
                     $('#selCategory').html(resHtml);
@@ -306,6 +331,38 @@
 
                 }
             }
+        })
+
+        //需求:点击筛选按钮,选出符合条件的文章,渲染到页面上
+        //1.给筛选按钮注册点击事件
+        $('#btnSearch').on('click', function (e) {
+            e.preventDefault();
+            //2.获取筛选条件
+            //修改下拉菜单value值
+            var cadeType = $('#selCategory').val();
+            var cadeState = $('#selStatus').val();
+            //3.发送Ajax请求,获取到符合条件的文章
+            $.ajax({
+                type: 'get',
+                url: 'http://localhost:8080/admin/article/query',
+                data: {
+                    type: cadeType,
+                    state: cadeState,
+                    page: 1,
+                    perpage: 5,
+                },
+                success: function (backData) {
+                    if (backData.code == 200) {
+                        //4.使用模板引擎渲染到页面上
+                        console.log(backData);
+                        var resHtml=template('data_search',backData);
+                        $('tbody').html(resHtml);
+
+
+                    }
+                }
+            })
+
         })
     })
 </script>
